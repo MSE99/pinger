@@ -11,9 +11,10 @@ type config struct {
 }
 
 type appDef struct {
-	AppName   string           `json:"appName"`
-	StatusURL string           `json:"statusURL"`
-	OnError   errorHandlingDef `json:"onError"`
+	AppName       string           `json:"appName"`
+	StatusURL     string           `json:"statusURL"`
+	OnError       errorHandlingDef `json:"onError"`
+	CheckInterval int              `json:"checkInterval"`
 }
 
 type errorHandlingDef struct {
