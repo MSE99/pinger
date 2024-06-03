@@ -40,3 +40,15 @@ func loadConfigFromFile(filePath string) (*config, error) {
 
 	return &conf, nil
 }
+
+func storeDefaultConfigIn(fileName string) error {
+	defaultConfig := defaultConfig()
+
+	buff := bytes.NewBuffer([]byte{})
+	encodeErr := json.NewEncoder(buff).Encode(defaultConfig)
+	if encodeErr != nil {
+		return encodeErr
+	}
+
+	return os.WriteFile(fileName, buff.Bytes(), 0666)
+}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -73,5 +75,56 @@ func TestLoadConfigEmpty(t *testing.T) {
 	_, err := loadConfigFromFile(path)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestStoreDefaultConfigIn_HappyPath(t *testing.T) {
+	t.Parallel()
+
+	fileName := fmt.Sprintf("config_%d.json", rand.Int())
+	t.Cleanup(func() {
+		os.Remove(fileName)
+	})
+
+	err := storeDefaultConfigIn(fileName)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestStoreDefaultConfig_FileExists(t *testing.T) {
+	t.Parallel()
+
+	fileName := fmt.Sprintf("config_%d.json", rand.Int())
+	t.Cleanup(func() {
+		os.Remove(fileName)
+	})
+
+	writeErr := os.WriteFile(fileName, []byte("Hope is the best singer alive"), 0666)
+	if writeErr != nil {
+		t.Error(writeErr)
+		t.Fail()
+	}
+
+	err := storeDefaultConfigIn(fileName)
+	if err != nil {
+		t.Error(err)
+	}
+
+	bytesRead, err := os.ReadFile(fileName)
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+
+	var conf config
+	decodeErr := json.NewDecoder(bytes.NewBuffer(bytesRead)).Decode(&conf)
+	if decodeErr != nil {
+		t.Error(decodeErr)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(conf, *defaultConfig()) {
+		t.Error("Default config should be empty")
 	}
 }
