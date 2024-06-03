@@ -56,24 +56,26 @@ func hit(ctx context.Context, def appDef) error {
 }
 
 func reportError(def appDef) error {
-	alertURL := def.OnError.AlertURL
-	body := def.OnError.Body
+	for _, handlingDef := range def.OnError {
+		alertURL := handlingDef.AlertURL
+		body := handlingDef.Body
 
-	buff := bytes.NewBuffer([]byte{})
-	encodeErr := json.NewEncoder(buff).Encode(body)
+		buff := bytes.NewBuffer([]byte{})
+		encodeErr := json.NewEncoder(buff).Encode(body)
 
-	if encodeErr != nil {
-		log.Printf("Encode error while reporting error for %s (%v).", def.AppName, encodeErr)
-		return encodeErr
+		if encodeErr != nil {
+			log.Printf("Encode error while reporting error for %s (%v).", def.AppName, encodeErr)
+			return encodeErr
+		}
+
+		_, respErr := http.Post(alertURL, "application/json", buff)
+		if respErr != nil {
+			log.Printf("Reporting error for %s (%v).", def.AppName, respErr)
+			return respErr
+		}
+
+		log.Printf("Successfully reported error for: %s", def.AppName)
 	}
-
-	_, respErr := http.Post(alertURL, "application/json", buff)
-	if respErr != nil {
-		log.Printf("Reporting error for %s (%v).", def.AppName, respErr)
-		return respErr
-	}
-
-	log.Printf("Successfully reported error for: %s", def.AppName)
 
 	return nil
 }
