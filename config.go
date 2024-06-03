@@ -45,7 +45,10 @@ func storeDefaultConfigIn(fileName string) error {
 	defaultConfig := defaultConfig()
 
 	buff := bytes.NewBuffer([]byte{})
-	encodeErr := json.NewEncoder(buff).Encode(defaultConfig)
+
+	encoder := json.NewEncoder(buff)
+	encoder.SetIndent("", "  ")
+	encodeErr := encoder.Encode(defaultConfig)
 	if encodeErr != nil {
 		return encodeErr
 	}
