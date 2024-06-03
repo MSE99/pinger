@@ -5,8 +5,20 @@ import (
 	"math/rand"
 	"os"
 	"path"
+	"reflect"
 	"testing"
 )
+
+func TestGetDefaultConfig(t *testing.T) {
+	t.Parallel()
+
+	gotten := defaultConfig()
+	wanted := &config{Apps: []appDef{}}
+
+	if !reflect.DeepEqual(gotten, wanted) {
+		t.Error("Default config should be empty")
+	}
+}
 
 func TestLoadConfigMissingFile(t *testing.T) {
 	t.Parallel()

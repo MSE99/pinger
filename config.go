@@ -21,6 +21,10 @@ type errorHandlingDef struct {
 	Body     any    `json:"body"`
 }
 
+func defaultConfig() *config {
+	return &config{Apps: []appDef{}}
+}
+
 func loadConfigFromFile(filePath string) (*config, error) {
 	var conf config
 
