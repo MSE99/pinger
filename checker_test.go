@@ -195,7 +195,7 @@ func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
 		def,
 	})
 
-	if !reflect.DeepEqual(results, []statusCheckResult{{App: def, IsOK: false}}) {
+	if !reflect.DeepEqual(results, []statusCheckResult{{App: def.AppName, IsOK: false}}) {
 		t.Error("did not return a results slice")
 	}
 }

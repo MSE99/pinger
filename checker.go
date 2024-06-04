@@ -12,7 +12,7 @@ import (
 )
 
 type statusCheckResult struct {
-	App  appDef `json:"app"`
+	App  string `json:"app"`
 	IsOK bool   `json:"isOk"`
 }
 
@@ -33,7 +33,7 @@ func checkOnAll(defs []appDef) []statusCheckResult {
 			guard.Lock()
 			defer guard.Unlock()
 
-			results = append(results, statusCheckResult{App: appDef, IsOK: checkErr == nil})
+			results = append(results, statusCheckResult{App: appDef.AppName, IsOK: checkErr == nil})
 		}()
 	}
 
