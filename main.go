@@ -7,6 +7,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -38,7 +41,23 @@ func main() {
 		startChecker(ctx, def)
 	}
 
+	app := fiber.New()
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		statuses := checkOnAll(conf.Apps)
+		return c.JSON(statuses)
+	})
+
+	go func() {
+		app.Listen(":9111")
+	}()
+
 	<-ctx.Done()
+
+	shutdownErr := app.ShutdownWithTimeout(time.Second * 60)
+	if shutdownErr != nil {
+		log.Println("HTTP Server shutdown error: ", shutdownErr)
+	}
 
 	log.Println("Shutting down pinger")
 }
