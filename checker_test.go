@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -164,5 +165,37 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 
 	if !badAlertSent {
 		t.Error("checker did not send an alert")
+	}
+}
+
+func TestCheckOnAllEmptyDefs(t *testing.T) {
+	results := checkOnAll([]appDef{})
+
+	if !reflect.DeepEqual(results, []statusCheckResult{}) {
+		t.Error("did not return an empty results slice")
+	}
+}
+
+func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	def := appDef{
+		AppName:       "Mohamed's App",
+		StatusURL:     server.URL + "/",
+		OnError:       []errorHandlingDef{},
+		CheckInterval: 100,
+	}
+
+	results := checkOnAll([]appDef{
+		def,
+	})
+
+	if !reflect.DeepEqual(results, []statusCheckResult{{App: def, IsOK: false}}) {
+		t.Error("did not return a results slice")
 	}
 }

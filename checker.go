@@ -10,6 +10,20 @@ import (
 	"time"
 )
 
+type statusCheckResult struct {
+	App  appDef `json:"app"`
+	IsOK bool   `json:"isOk"`
+}
+
+func checkOnAll(defs []appDef) []statusCheckResult {
+	results := []statusCheckResult{}
+	for _, def := range defs {
+		checkErr := hit(def)
+		results = append(results, statusCheckResult{App: def, IsOK: checkErr != nil})
+	}
+	return results
+}
+
 func startChecker(ctx context.Context, def appDef) {
 	interval := def.CheckInterval
 
@@ -25,7 +39,7 @@ func startChecker(ctx context.Context, def appDef) {
 				return
 			case <-timeChan:
 				log.Printf("Checking on %s", def.AppName)
-				err := hit(ctx, def)
+				err := hit(def)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -34,7 +48,7 @@ func startChecker(ctx context.Context, def appDef) {
 	}()
 }
 
-func hit(ctx context.Context, def appDef) error {
+func hit(def appDef) error {
 	resp, err := http.Get(def.StatusURL)
 
 	if err != nil {
