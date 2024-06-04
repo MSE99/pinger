@@ -199,3 +199,38 @@ func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
 		t.Error("did not return a results slice")
 	}
 }
+
+func TestCheckOnAllWithGoodAndBadStatuses(t *testing.T) {
+	badStatusMux := http.NewServeMux()
+	badStatusMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	badStatusServer := httptest.NewServer(badStatusMux)
+	defer badStatusServer.Close()
+
+	goodStatusMux := http.NewServeMux()
+	goodStatusMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	goodStatusServer := httptest.NewServer(goodStatusMux)
+	defer goodStatusServer.Close()
+
+	badStatusDef := appDef{
+		AppName:       "Mohamed's App",
+		StatusURL:     badStatusServer.URL + "/",
+		OnError:       []errorHandlingDef{},
+		CheckInterval: 100,
+	}
+
+	goodStatusDef := appDef{
+		AppName:       "Mohamed's Other app",
+		StatusURL:     goodStatusServer.URL + "/",
+		OnError:       []errorHandlingDef{},
+		CheckInterval: 100,
+	}
+
+	checkOnAll([]appDef{
+		badStatusDef,
+		goodStatusDef,
+	})
+}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -16,11 +17,28 @@ type statusCheckResult struct {
 }
 
 func checkOnAll(defs []appDef) []statusCheckResult {
+	group := &sync.WaitGroup{}
+	guard := &sync.Mutex{}
 	results := []statusCheckResult{}
+
 	for _, def := range defs {
-		checkErr := hit(def)
-		results = append(results, statusCheckResult{App: def, IsOK: checkErr != nil})
+		group.Add(1)
+
+		appDef := def
+
+		go func() {
+			defer group.Done()
+			checkErr := hit(appDef)
+
+			guard.Lock()
+			defer guard.Unlock()
+
+			results = append(results, statusCheckResult{App: appDef, IsOK: checkErr == nil})
+		}()
 	}
+
+	group.Wait()
+
 	return results
 }
 
@@ -53,10 +71,19 @@ func hit(def appDef) error {
 
 	if err != nil {
 		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
-		return reportError(def)
+
+		reportingErr := reportError(def)
+		if reportingErr == nil {
+			return err
+		}
+		return reportingErr
 	} else if resp.StatusCode != 200 {
 		log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
-		return reportError(def)
+		reportingErr := reportError(def)
+		if reportingErr == nil {
+			return fmt.Errorf("gotten a none 2xx status code: %v", resp.StatusCode)
+		}
+		return reportingErr
 	}
 
 	log.Printf("%s is alive and well!.", def.AppName)
