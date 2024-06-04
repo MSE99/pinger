@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+
+      - name: Compiler & linter checks
+        run: |
+          go build ./...
+          go vet ./...
+
+      - name: Run tests
+        run: go test ./...
