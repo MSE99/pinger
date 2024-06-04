@@ -17,15 +17,11 @@ func startChecker(ctx context.Context, def appDef) {
 		log.Printf("Starting checker for %s", def.AppName)
 
 		for {
-			timer := time.NewTimer(time.Duration(interval) * time.Millisecond)
-			defer timer.Stop()
-
-			timeChan := timer.C
+			timeChan := time.After(time.Duration(interval) * time.Millisecond)
 
 			select {
 			case <-ctx.Done():
 				log.Printf("Shutting down checker for %s", def.AppName)
-				timer.Stop()
 				return
 			case <-timeChan:
 				log.Printf("Checking on %s", def.AppName)
