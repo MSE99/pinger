@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	getStatusOnly := flag.Bool("status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
 	genConfigFlag := flag.Bool("config", false, "If this flag is passed to pinger, it will generate a config file.")
 
 	flag.Parse()
@@ -33,6 +34,11 @@ func main() {
 	conf, err := loadConfigFromFile("config.json")
 	if err != nil {
 		log.Panic(err)
+	}
+
+	if *getStatusOnly {
+		checkOnAll(conf.Apps)
+		return
 	}
 
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
