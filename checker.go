@@ -40,13 +40,12 @@ func startChecker(ctx context.Context, def appDef) {
 
 func hit(ctx context.Context, def appDef) error {
 	resp, err := http.Get(def.StatusURL)
-	if err != nil || resp.StatusCode != 200 {
-		if resp.StatusCode != 200 {
-			log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
-		} else {
-			log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
-		}
 
+	if err != nil {
+		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
+		return reportError(def)
+	} else if resp.StatusCode != 200 {
+		log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
 		return reportError(def)
 	}
 
