@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -72,14 +73,14 @@ func hit(ctx context.Context, def appDef) error {
 	if err != nil {
 		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
 
-		reportingErr := reportError(ctx, def)
+		reportingErr := reportError(ctx, def, map[string]string{})
 		if reportingErr == nil {
 			return err
 		}
 		return reportingErr
 	} else if resp.StatusCode != 200 {
 		log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
-		reportingErr := reportError(ctx, def)
+		reportingErr := reportError(ctx, def, map[string]string{"{status}": fmt.Sprintf("%d", resp.StatusCode)})
 		if reportingErr == nil {
 			return fmt.Errorf("gotten a none 2xx status code: %v", resp.StatusCode)
 		}
@@ -91,7 +92,7 @@ func hit(ctx context.Context, def appDef) error {
 	return nil
 }
 
-func reportError(ctx context.Context, def appDef) error {
+func reportError(ctx context.Context, def appDef, meta map[string]string) error {
 	for _, handlingDef := range def.HttpReporters {
 		alertURL := handlingDef.Url
 		body := handlingDef.Body
@@ -104,7 +105,13 @@ func reportError(ctx context.Context, def appDef) error {
 			return encodeErr
 		}
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, alertURL, buff)
+		stringifiedBody := buff.String()
+
+		for key, value := range meta {
+			stringifiedBody = strings.ReplaceAll(stringifiedBody, key, value)
+		}
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, alertURL, strings.NewReader(stringifiedBody))
 		if err != nil {
 			return err
 		}

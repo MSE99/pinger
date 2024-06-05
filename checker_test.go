@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -121,8 +123,23 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 	alertSent := false
 	alerterMux := http.NewServeMux()
 	alerterMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		var reqBody struct {
+			Awesome string
+		}
+
+		decodeErr := json.NewDecoder(r.Body).Decode(&reqBody)
+
+		if decodeErr != nil {
+			t.Error(decodeErr)
+		}
+
 		w.WriteHeader(http.StatusOK)
-		alertSent = true
+
+		log.Println("HERE NIGGER HERE", reqBody)
+
+		if reqBody.Awesome == "500" {
+			alertSent = true
+		}
 	})
 	alerterServer := httptest.NewServer(alerterMux)
 	defer alerterServer.Close()
@@ -146,8 +163,12 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 			StatusURL: server.URL + "/",
 			HttpReporters: []httpReportingDef{
 				{
-					Url:  alerterServer.URL + "/",
-					Body: struct{}{},
+					Url: alerterServer.URL + "/",
+					Body: struct {
+						Awesome string
+					}{
+						Awesome: "{status}",
+					},
 				},
 				{
 					Url:  badAlerterServer.URL + "/",
