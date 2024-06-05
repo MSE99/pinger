@@ -1,0 +1,62 @@
+{
+  "apps": [
+    {
+      "appName": "FMA",
+      "statusUrl": "https://fma.aramtech.ly/server/api/status",
+      "checkInterval": "1h",
+      "httpReporters": [
+        {
+          "url": "https://easysms.devs.ly/sms/api",
+          "method": "POST",
+          "body": {
+            "action": "send-sms",
+            "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
+            "unicode": 1,
+            "to": "911974326",
+            "sms": "(Pinger) Delivery platform service is down, responded with {status} to stauts request"
+          }
+        },
+        {
+          "url": "https://easysms.devs.ly/sms/api",
+          "method": "POST",
+          "body": {
+            "action": "send-sms",
+            "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
+            "unicode": 1,
+            "to": "911600863",
+            "sms": "(Pinger) Delivery platform service is down, responded with code {status} to stauts request"
+          }
+        }
+      ]
+    },
+    {
+      "appName": "FMA frontend",
+      "statusUrl": "https://fma.aramtech.ly/",
+      "checkInterval": "1h",
+      "httpReporters": [
+        {
+          "url": "https://easysms.devs.ly/sms/api",
+          "method": "POST",
+          "body": {
+            "action": "send-sms",
+            "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
+            "unicode": 1,
+            "to": "911974326",
+            "sms": "(Pinger) Delivery platform UI is down, responded with {status} to stauts request"
+          }
+        },
+        {
+          "url": "https://easysms.devs.ly/sms/api",
+          "method": "POST",
+          "body": {
+            "action": "send-sms",
+            "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
+            "unicode": 1,
+            "to": "911600863",
+            "sms": "(Pinger) Delivery platform UI is down, responded with code {status} to stauts request"
+          }
+        }
+      ]
+    }
+  ]
+}
