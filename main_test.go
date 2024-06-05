@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestStartHttpServerAndCheckers(t *testing.T) {
@@ -13,6 +14,8 @@ func TestStartHttpServerAndCheckers(t *testing.T) {
 	t.Cleanup(cancel)
 
 	go startHTTPServerAndCheckers(testCtx)
+
+	time.Sleep(time.Millisecond * 50)
 
 	t.Run("HTTP server should check on all services and respond with 200.", func(t *testing.T) {
 		t.Parallel()
@@ -31,4 +34,6 @@ func TestStartHttpServerAndCheckers(t *testing.T) {
 			t.FailNow()
 		}
 	})
+
+	time.Sleep(time.Millisecond * 50)
 }
