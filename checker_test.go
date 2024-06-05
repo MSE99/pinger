@@ -169,7 +169,7 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 }
 
 func TestCheckOnAllEmptyDefs(t *testing.T) {
-	results := checkOnAll([]appDef{})
+	results := checkOnAll([]appDef{}, context.Background())
 
 	if !reflect.DeepEqual(results, []statusCheckResult{}) {
 		t.Error("did not return an empty results slice")
@@ -193,7 +193,7 @@ func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
 
 	results := checkOnAll([]appDef{
 		def,
-	})
+	}, context.Background())
 
 	if !reflect.DeepEqual(results, []statusCheckResult{{App: def.AppName, IsOK: false}}) {
 		t.Error("did not return a results slice")
@@ -232,5 +232,5 @@ func TestCheckOnAllWithGoodAndBadStatuses(t *testing.T) {
 	checkOnAll([]appDef{
 		badStatusDef,
 		goodStatusDef,
-	})
+	}, context.Background())
 }

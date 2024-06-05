@@ -16,7 +16,7 @@ type statusCheckResult struct {
 	IsOK bool   `json:"isOk"`
 }
 
-func checkOnAll(defs []appDef) []statusCheckResult {
+func checkOnAll(defs []appDef, ctx context.Context) []statusCheckResult {
 	group := &sync.WaitGroup{}
 	guard := &sync.Mutex{}
 	results := []statusCheckResult{}
@@ -28,7 +28,7 @@ func checkOnAll(defs []appDef) []statusCheckResult {
 
 		go func() {
 			defer group.Done()
-			checkErr := hit(appDef)
+			checkErr := hit(appDef, ctx)
 
 			guard.Lock()
 			defer guard.Unlock()
@@ -57,7 +57,7 @@ func startChecker(ctx context.Context, def appDef) {
 				return
 			case <-timeChan:
 				log.Printf("Checking on %s", def.AppName)
-				err := hit(def)
+				err := hit(def, ctx)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -66,20 +66,20 @@ func startChecker(ctx context.Context, def appDef) {
 	}()
 }
 
-func hit(def appDef) error {
+func hit(def appDef, ctx context.Context) error {
 	resp, err := http.Get(def.StatusURL)
 
 	if err != nil {
 		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
 
-		reportingErr := reportError(def)
+		reportingErr := reportError(def, ctx)
 		if reportingErr == nil {
 			return err
 		}
 		return reportingErr
 	} else if resp.StatusCode != 200 {
 		log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
-		reportingErr := reportError(def)
+		reportingErr := reportError(def, ctx)
 		if reportingErr == nil {
 			return fmt.Errorf("gotten a none 2xx status code: %v", resp.StatusCode)
 		}
@@ -91,7 +91,7 @@ func hit(def appDef) error {
 	return nil
 }
 
-func reportError(def appDef) error {
+func reportError(def appDef, ctx context.Context) error {
 	for _, handlingDef := range def.HttpReporters {
 		alertURL := handlingDef.Url
 		body := handlingDef.Body
@@ -104,7 +104,12 @@ func reportError(def appDef) error {
 			return encodeErr
 		}
 
-		_, respErr := http.Post(alertURL, "application/json", buff)
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, alertURL, buff)
+		if err != nil {
+			return err
+		}
+
+		_, respErr := http.DefaultClient.Do(req)
 		if respErr != nil {
 			log.Printf("Reporting error for %s (%v).", def.AppName, respErr)
 			return respErr

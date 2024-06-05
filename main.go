@@ -41,7 +41,7 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 	}
 
 	if *getStatusOnly {
-		checkOnAll(conf.Apps)
+		checkOnAll(conf.Apps, context.Background())
 		return
 	}
 
@@ -59,7 +59,7 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		results := checkOnAll(conf.Apps)
+		results := checkOnAll(conf.Apps, c.Context())
 		return c.Render("index", results)
 	})
 
