@@ -14,19 +14,28 @@ import (
 )
 
 func main() {
+	startHTTPServerAndCheckers(context.Background())
+}
+
+func startHTTPServerAndCheckers(mainCtx context.Context) {
 	getStatusOnly := flag.Bool("status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
 	genConfigFlag := flag.Bool("config", false, "If this flag is passed to pinger, it will generate a config file.")
 
 	flag.Parse()
 
 	if *genConfigFlag {
-		generateDefaultConfig()
+		fmt.Println("✨ Generating default config...")
+
+		err := storeDefaultConfigIn("config.json")
+		if err != nil {
+			log.Panic(err)
+		}
 		return
 	}
 
 	log.Println("Starting pinger")
 
-	conf, err := loadConfigFromFile("config.json")
+	conf, err := loadOrCreateConfigAt("config.json")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -36,7 +45,7 @@ func main() {
 		return
 	}
 
-	ctx, cancelFunc := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	ctx, cancelFunc := signal.NotifyContext(mainCtx, os.Interrupt, os.Kill)
 	defer cancelFunc()
 
 	for _, def := range conf.Apps {
@@ -66,13 +75,4 @@ func main() {
 	}
 
 	log.Println("Shutting down pinger")
-}
-
-func generateDefaultConfig() {
-	fmt.Println("✨ Generating default config...")
-
-	err := storeDefaultConfigIn("config.json")
-	if err != nil {
-		log.Panic(err)
-	}
 }

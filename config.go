@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"log"
 	"os"
 )
 
@@ -26,6 +28,24 @@ func defaultConfig() *config {
 	return &config{Apps: []appDef{}}
 }
 
+func loadOrCreateConfigAt(filePath string) (*config, error) {
+	var conf config
+
+	buff, err := os.ReadFile(filePath)
+	if errors.Is(err, os.ErrNotExist) {
+		return defaultConfig(), storeDefaultConfigIn(filePath)
+	} else if err != nil {
+		return nil, err
+	}
+
+	decodeErr := json.NewDecoder(bytes.NewBuffer(buff)).Decode(&conf)
+	if decodeErr != nil {
+		return nil, decodeErr
+	}
+
+	return &conf, nil
+}
+
 func loadConfigFromFile(filePath string) (*config, error) {
 	var conf config
 
@@ -43,6 +63,8 @@ func loadConfigFromFile(filePath string) (*config, error) {
 }
 
 func storeDefaultConfigIn(fileName string) error {
+	log.Println("Generating default config")
+
 	defaultConfig := defaultConfig()
 
 	buff := bytes.NewBuffer([]byte{})
