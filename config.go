@@ -46,22 +46,6 @@ func loadOrCreateConfigAt(filePath string) (*config, error) {
 	return &conf, nil
 }
 
-func loadConfigFromFile(filePath string) (*config, error) {
-	var conf config
-
-	buff, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	decodeErr := json.NewDecoder(bytes.NewBuffer(buff)).Decode(&conf)
-	if decodeErr != nil {
-		return nil, decodeErr
-	}
-
-	return &conf, nil
-}
-
 func storeDefaultConfigIn(fileName string) error {
 	log.Println("Generating default config")
 

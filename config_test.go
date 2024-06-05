@@ -27,12 +27,19 @@ func TestLoadConfigMissingFile(t *testing.T) {
 
 	tempDir := os.TempDir()
 	wrongPath := path.Join(tempDir, "missing.config.json")
-	_ = os.Remove(wrongPath)
+	defer os.Remove(wrongPath)
 
-	_, err := loadConfigFromFile(wrongPath)
+	_, err := loadOrCreateConfigAt(wrongPath)
 
-	if err == nil {
-		t.Error("expected an error, got nil")
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	_, statErr := os.Stat(wrongPath)
+	if statErr != nil {
+		t.Error(statErr)
+		t.FailNow()
 	}
 }
 
@@ -51,7 +58,7 @@ func TestLoadConfigBadJSON(t *testing.T) {
 		t.Fail()
 	}
 
-	_, err := loadConfigFromFile(path)
+	_, err := loadOrCreateConfigAt(path)
 	if err == nil {
 		t.Error("expected an error, got nil")
 	}
@@ -72,7 +79,7 @@ func TestLoadConfigEmpty(t *testing.T) {
 		t.Fail()
 	}
 
-	_, err := loadConfigFromFile(path)
+	_, err := loadOrCreateConfigAt(path)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
