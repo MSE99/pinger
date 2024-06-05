@@ -28,7 +28,7 @@ func TestCheckerStatusOK(t *testing.T) {
 		appDef{
 			AppName:       "Mohamed's App",
 			StatusURL:     server.URL + "/",
-			OnError:       []errorHandlingDef{},
+			HttpReporters: []httpReportingDef{},
 			CheckInterval: 10,
 		},
 	)
@@ -58,7 +58,7 @@ func TestCheckerWithBadStatusAndNoAlerters(t *testing.T) {
 		appDef{
 			AppName:       "Mohamed's App",
 			StatusURL:     server.URL + "/",
-			OnError:       []errorHandlingDef{},
+			HttpReporters: []httpReportingDef{},
 			CheckInterval: 10,
 		},
 	)
@@ -94,10 +94,10 @@ func TestCheckerWithBadStatusAndAnAlerter(t *testing.T) {
 		appDef{
 			AppName:   "Mohamed's App",
 			StatusURL: server.URL + "/",
-			OnError: []errorHandlingDef{
+			HttpReporters: []httpReportingDef{
 				{
-					AlertURL: alerterServer.URL + "/",
-					Body:     struct{}{},
+					Url:  alerterServer.URL + "/",
+					Body: struct{}{},
 				},
 			},
 			CheckInterval: 10,
@@ -144,14 +144,14 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 		appDef{
 			AppName:   "Mohamed's App",
 			StatusURL: server.URL + "/",
-			OnError: []errorHandlingDef{
+			HttpReporters: []httpReportingDef{
 				{
-					AlertURL: alerterServer.URL + "/",
-					Body:     struct{}{},
+					Url:  alerterServer.URL + "/",
+					Body: struct{}{},
 				},
 				{
-					AlertURL: badAlerterServer.URL + "/",
-					Body:     struct{}{},
+					Url:  badAlerterServer.URL + "/",
+					Body: struct{}{},
 				},
 			},
 			CheckInterval: 10,
@@ -187,7 +187,7 @@ func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
 	def := appDef{
 		AppName:       "Mohamed's App",
 		StatusURL:     server.URL + "/",
-		OnError:       []errorHandlingDef{},
+		HttpReporters: []httpReportingDef{},
 		CheckInterval: 100,
 	}
 
@@ -218,14 +218,14 @@ func TestCheckOnAllWithGoodAndBadStatuses(t *testing.T) {
 	badStatusDef := appDef{
 		AppName:       "Mohamed's App",
 		StatusURL:     badStatusServer.URL + "/",
-		OnError:       []errorHandlingDef{},
+		HttpReporters: []httpReportingDef{},
 		CheckInterval: 100,
 	}
 
 	goodStatusDef := appDef{
 		AppName:       "Mohamed's Other app",
 		StatusURL:     goodStatusServer.URL + "/",
-		OnError:       []errorHandlingDef{},
+		HttpReporters: []httpReportingDef{},
 		CheckInterval: 100,
 	}
 

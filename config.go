@@ -15,13 +15,14 @@ type config struct {
 type appDef struct {
 	AppName       string             `json:"appName"`
 	StatusURL     string             `json:"statusURL"`
-	OnError       []errorHandlingDef `json:"onError"`
+	HttpReporters []httpReportingDef `json:"httpReporters"`
 	CheckInterval int                `json:"checkInterval"`
 }
 
-type errorHandlingDef struct {
-	AlertURL string `json:"alertURL"`
-	Body     any    `json:"body"`
+type httpReportingDef struct {
+	Url    string `json:"url"`
+	Body   any    `json:"body"`
+	Method string `json:"method"`
 }
 
 func defaultConfig() *config {

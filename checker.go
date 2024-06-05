@@ -92,8 +92,8 @@ func hit(def appDef) error {
 }
 
 func reportError(def appDef) error {
-	for _, handlingDef := range def.OnError {
-		alertURL := handlingDef.AlertURL
+	for _, handlingDef := range def.HttpReporters {
+		alertURL := handlingDef.Url
 		body := handlingDef.Body
 
 		buff := bytes.NewBuffer([]byte{})

@@ -36,11 +36,11 @@ $ ./pinger -config
       "appName": "Delivery platform", // The application name
       "statusUrl": "http://fma.aramtech.ly/server/api/status", // Status url
       "checkInterval": 60000, // Check interval in ms
-      "onError": [
+      "httpReporters": [
         // Alert handlers
         {
-          "alertURL": "https://easysms.devs.ly/sms/api", // Endpoint to hit if a service goes down
-
+          "url": "https://easysms.devs.ly/sms/api", // Endpoint to hit if a service goes down
+          "method": "POST",
           // The body sent with the http request
           "body": {
             "action": "send-sms",
