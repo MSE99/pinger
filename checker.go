@@ -28,7 +28,7 @@ func checkOnAll(defs []appDef, ctx context.Context) []statusCheckResult {
 
 		go func() {
 			defer group.Done()
-			checkErr := hit(appDef, ctx)
+			checkErr := hit(ctx, appDef)
 
 			guard.Lock()
 			defer guard.Unlock()
@@ -57,7 +57,7 @@ func startChecker(ctx context.Context, def appDef) {
 				return
 			case <-timeChan:
 				log.Printf("Checking on %s", def.AppName)
-				err := hit(def, ctx)
+				err := hit(ctx, def)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -66,20 +66,20 @@ func startChecker(ctx context.Context, def appDef) {
 	}()
 }
 
-func hit(def appDef, ctx context.Context) error {
+func hit(ctx context.Context, def appDef) error {
 	resp, err := http.Get(def.StatusURL)
 
 	if err != nil {
 		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
 
-		reportingErr := reportError(def, ctx)
+		reportingErr := reportError(ctx, def)
 		if reportingErr == nil {
 			return err
 		}
 		return reportingErr
 	} else if resp.StatusCode != 200 {
 		log.Printf("Gotten `%v` response status from checking on the status of %s (Reporting...)", resp.StatusCode, def.AppName)
-		reportingErr := reportError(def, ctx)
+		reportingErr := reportError(ctx, def)
 		if reportingErr == nil {
 			return fmt.Errorf("gotten a none 2xx status code: %v", resp.StatusCode)
 		}
@@ -91,7 +91,7 @@ func hit(def appDef, ctx context.Context) error {
 	return nil
 }
 
-func reportError(def appDef, ctx context.Context) error {
+func reportError(ctx context.Context, def appDef) error {
 	for _, handlingDef := range def.HttpReporters {
 		alertURL := handlingDef.Url
 		body := handlingDef.Body
