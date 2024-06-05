@@ -44,13 +44,17 @@ func checkOnAll(defs []appDef, ctx context.Context) []statusCheckResult {
 }
 
 func startChecker(ctx context.Context, def appDef) {
-	interval := def.CheckInterval
+	interval, err := time.ParseDuration(def.CheckInterval)
+	if err != nil {
+		log.Panic(err)
+		return
+	}
 
 	go func() {
 		log.Printf("Starting checker for %s", def.AppName)
 
 		for {
-			timeChan := time.After(time.Duration(interval) * time.Millisecond)
+			timeChan := time.After(interval)
 
 			select {
 			case <-ctx.Done():

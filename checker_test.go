@@ -31,7 +31,7 @@ func TestCheckerStatusOK(t *testing.T) {
 			AppName:       "Mohamed's App",
 			StatusURL:     server.URL + "/",
 			HttpReporters: []httpReportingDef{},
-			CheckInterval: 10,
+			CheckInterval: "10ms",
 		},
 	)
 	time.Sleep(time.Millisecond * 80)
@@ -61,7 +61,7 @@ func TestCheckerWithBadStatusAndNoAlerters(t *testing.T) {
 			AppName:       "Mohamed's App",
 			StatusURL:     server.URL + "/",
 			HttpReporters: []httpReportingDef{},
-			CheckInterval: 10,
+			CheckInterval: "10ms",
 		},
 	)
 	time.Sleep(time.Millisecond * 80)
@@ -102,7 +102,7 @@ func TestCheckerWithBadStatusAndAnAlerter(t *testing.T) {
 					Body: struct{}{},
 				},
 			},
-			CheckInterval: 10,
+			CheckInterval: "10ms",
 		},
 	)
 	time.Sleep(time.Millisecond * 150)
@@ -175,7 +175,7 @@ func TestCheckerWithBadStatusAndABadReporter(t *testing.T) {
 					Body: struct{}{},
 				},
 			},
-			CheckInterval: 10,
+			CheckInterval: "10ms",
 		},
 	)
 	time.Sleep(time.Millisecond * 150)
@@ -209,7 +209,7 @@ func TestCheckOnAllWithBadStatusAndAlert(t *testing.T) {
 		AppName:       "Mohamed's App",
 		StatusURL:     server.URL + "/",
 		HttpReporters: []httpReportingDef{},
-		CheckInterval: 100,
+		CheckInterval: "100ms",
 	}
 
 	results := checkOnAll([]appDef{
@@ -240,14 +240,14 @@ func TestCheckOnAllWithGoodAndBadStatuses(t *testing.T) {
 		AppName:       "Mohamed's App",
 		StatusURL:     badStatusServer.URL + "/",
 		HttpReporters: []httpReportingDef{},
-		CheckInterval: 100,
+		CheckInterval: "100ms",
 	}
 
 	goodStatusDef := appDef{
 		AppName:       "Mohamed's Other app",
 		StatusURL:     goodStatusServer.URL + "/",
 		HttpReporters: []httpReportingDef{},
-		CheckInterval: 100,
+		CheckInterval: "100ms",
 	}
 
 	checkOnAll([]appDef{

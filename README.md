@@ -35,7 +35,7 @@ $ ./pinger -config
     {
       "appName": "Delivery platform", // The application name
       "statusUrl": "http://fma.aramtech.ly/server/api/status", // Status url
-      "checkInterval": 60000, // Check interval in ms
+      "checkInterval": "1m", // Check interval in ms
       "httpReporters": [
         // Alert handlers
         {

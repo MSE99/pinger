@@ -16,7 +16,7 @@ type appDef struct {
 	AppName       string             `json:"appName"`
 	StatusURL     string             `json:"statusURL"`
 	HttpReporters []httpReportingDef `json:"httpReporters"`
-	CheckInterval int                `json:"checkInterval"`
+	CheckInterval string             `json:"checkInterval"`
 }
 
 type httpReportingDef struct {
