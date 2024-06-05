@@ -20,12 +20,7 @@ func main() {
 	flag.Parse()
 
 	if *genConfigFlag {
-		fmt.Println("✨ Generating default config...")
-
-		err := storeDefaultConfigIn("config.json")
-		if err != nil {
-			log.Panic(err)
-		}
+		generateDefaultConfig()
 		return
 	}
 
@@ -71,4 +66,13 @@ func main() {
 	}
 
 	log.Println("Shutting down pinger")
+}
+
+func generateDefaultConfig() {
+	fmt.Println("✨ Generating default config...")
+
+	err := storeDefaultConfigIn("config.json")
+	if err != nil {
+		log.Panic(err)
+	}
 }
