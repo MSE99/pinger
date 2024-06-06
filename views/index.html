@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinger | Web</title>
+  <title>Pinger | Web client</title>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
@@ -68,9 +68,25 @@
   </style>
 
   <script type="module">
-    setInterval(() => {
-      window.location.reload();
-    }, 60_000);
+    const isHttps = location.protocol === "https";
+    const wsUrl = `${isHttps ? 'wss' : 'ws'}://${location.host}/ws`;
+
+    const socket = new WebSocket(wsUrl);
+
+    socket.onopen = ev => {
+      console.log("Connected to the pinger successfully");
+      console.log("Initial connection event", ev);
+    };
+
+    socket.onmessage = ev => {
+      console.log("Gotten message", ev);
+    };
+
+    document.addEventListener("beforeunload", () => {
+      try {
+        socket.close();
+      } catch (err) {}
+    })
   </script>
 </head>
 <body>

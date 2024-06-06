@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"sync"
 	"time"
 
@@ -80,7 +81,7 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 	})
 
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
-		log.Println("Websocket watcher connected, starting receiver goroutine.")
+		log.Println("Websocket watcher connected, starting sender goroutine.")
 
 		messages := make(chan string, 10)
 
@@ -99,9 +100,33 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 			sockets[messages] = true
 		}()
 
+		disconnectedChan := make(chan bool)
+
+		go func() {
+			for {
+				_, _, err := c.ReadMessage()
+
+				if err != nil {
+					disconnectedChan <- true
+					return
+				}
+
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					continue
+				}
+			}
+		}()
+
+		defer log.Println("Shutting down sender & reader goroutines.")
+
 		for {
 			select {
 			case <-ctx.Done():
+				return
+			case <-disconnectedChan:
 				return
 			case s := <-messages:
 				err := c.WriteJSON(s)
@@ -114,6 +139,13 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 
 	go func() {
 		app.Listen(":9111")
+	}()
+
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			fmt.Println("NUMBER OF GOROUTINES ", runtime.NumGoroutine())
+		}
 	}()
 
 	<-ctx.Done()
