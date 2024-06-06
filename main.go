@@ -7,8 +7,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 )
@@ -16,6 +18,11 @@ import (
 func main() {
 	startHTTPServerAndCheckers(context.Background())
 }
+
+var (
+	socketsGuard                      = &sync.Mutex{}
+	sockets      map[chan string]bool = map[chan string]bool{}
+)
 
 func startHTTPServerAndCheckers(mainCtx context.Context) {
 	getStatusOnly := flag.Bool("status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
@@ -62,6 +69,48 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 		results := checkOnAll(conf.Apps, c.Context())
 		return c.Render("index", results)
 	})
+
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			return c.Next()
+		}
+
+		return fiber.ErrUpgradeRequired
+	})
+
+	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
+		log.Println("Websocket watcher connected, starting receiver goroutine.")
+
+		messages := make(chan string, 10)
+
+		defer func() {
+			socketsGuard.Lock()
+			defer socketsGuard.Unlock()
+
+			delete(sockets, messages)
+			close(messages)
+		}()
+
+		func() {
+			socketsGuard.Lock()
+			defer socketsGuard.Unlock()
+
+			sockets[messages] = true
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case s := <-messages:
+				err := c.WriteJSON(s)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		}
+	}))
 
 	go func() {
 		app.Listen(":9111")
