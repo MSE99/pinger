@@ -13,11 +13,10 @@ type config struct {
 }
 
 type appDef struct {
-	AppName            string                  `json:"appName"`
-	StatusURL          string                  `json:"statusURL"`
-	HttpReporters      []httpReportingDef      `json:"httpReporters"`
-	WebsocketReporters []websocketReportingDef `json:"websocketReporters"`
-	CheckInterval      string                  `json:"checkInterval"`
+	AppName       string             `json:"appName"`
+	StatusURL     string             `json:"statusURL"`
+	HttpReporters []httpReportingDef `json:"httpReporters"`
+	CheckInterval string             `json:"checkInterval"`
 }
 
 type httpReportingDef struct {
@@ -63,8 +62,4 @@ func storeDefaultConfigIn(fileName string) error {
 	}
 
 	return os.WriteFile(fileName, buff.Bytes(), 0666)
-}
-
-type websocketReportingDef struct {
-	Body any `json:"body"`
 }

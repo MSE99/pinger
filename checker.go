@@ -93,6 +93,14 @@ func hit(ctx context.Context, def appDef) error {
 
 	log.Printf("%s is alive and well!.", def.AppName)
 
+	for listener := range sockets {
+		select {
+		case listener <- statusCheckResult{App: def.AppName, IsOK: true}:
+		default:
+			continue
+		}
+	}
+
 	return nil
 }
 
@@ -129,27 +137,11 @@ func reportError(ctx context.Context, def appDef, meta map[string]string) error 
 		log.Printf("Successfully reported error for: %s", def.AppName)
 	}
 
-	for _, handlingDef := range def.WebsocketReporters {
-		buff := bytes.NewBuffer([]byte{})
-		encodeErr := json.NewEncoder(buff).Encode(handlingDef.Body)
-
-		if encodeErr != nil {
-			log.Printf("Encode error while reporting error for %s (%v).", def.AppName, encodeErr)
-			return encodeErr
-		}
-
-		stringifiedBody := buff.String()
-
-		for key, value := range meta {
-			stringifiedBody = strings.ReplaceAll(stringifiedBody, key, value)
-		}
-
-		for listener := range sockets {
-			select {
-			case listener <- stringifiedBody:
-			default:
-				continue
-			}
+	for listener := range sockets {
+		select {
+		case listener <- statusCheckResult{App: def.AppName, IsOK: false}:
+		default:
+			continue
 		}
 	}
 

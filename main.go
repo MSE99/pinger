@@ -21,8 +21,8 @@ func main() {
 }
 
 var (
-	socketsGuard                      = &sync.Mutex{}
-	sockets      map[chan string]bool = map[chan string]bool{}
+	socketsGuard                                 = &sync.Mutex{}
+	sockets      map[chan statusCheckResult]bool = map[chan statusCheckResult]bool{}
 )
 
 func startHTTPServerAndCheckers(mainCtx context.Context) {
@@ -83,7 +83,7 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
 		log.Println("Websocket watcher connected, starting sender goroutine.")
 
-		messages := make(chan string, 10)
+		messages := make(chan statusCheckResult, 10)
 
 		defer func() {
 			socketsGuard.Lock()
@@ -121,6 +121,9 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 		}()
 
 		defer log.Println("Shutting down sender & reader goroutines.")
+
+		checkResults := checkOnAll(conf.Apps, ctx)
+		_ = c.WriteJSON(checkResults)
 
 		for {
 			select {
