@@ -13,7 +13,7 @@
             "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
             "unicode": 1,
             "to": "911974326",
-            "sms": "(Pinger) Delivery platform service is down, responded with {status} to stauts request"
+            "sms": "(Pinger) Delivery platform service is down, responded with {status} to status request"
           }
         },
         {
@@ -24,9 +24,19 @@
             "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
             "unicode": 1,
             "to": "911600863",
-            "sms": "(Pinger) Delivery platform service is down, responded with code {status} to stauts request"
+            "sms": "(Pinger) Delivery platform service is down, responded with code {status} to status request"
           }
         }
+      ],
+      "websocketReporters": [
+        {
+          "event": "delivery-platform-down",
+          "body": "(Pinger) Delivery platform service is down, responded with code {status} to status request"
+        },
+        {
+          "event": "delivery-ui-down",
+          "body": "(Pinger) Delivery platform UI is down, responded with code {status} to status request"
+        } 
       ]
     },
     {
@@ -42,7 +52,7 @@
             "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
             "unicode": 1,
             "to": "911974326",
-            "sms": "(Pinger) Delivery platform UI is down, responded with {status} to stauts request"
+            "sms": "(Pinger) Delivery platform UI is down, responded with {status} to status request"
           }
         },
         {
@@ -53,7 +63,7 @@
             "api_key": "API_KEY_FOR_SMS_GATEWAY_GOES_HERE",
             "unicode": 1,
             "to": "911600863",
-            "sms": "(Pinger) Delivery platform UI is down, responded with code {status} to stauts request"
+            "sms": "(Pinger) Delivery platform UI is down, responded with code {status} to status request"
           }
         }
       ]
