@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"sync"
 	"time"
 
@@ -142,13 +141,6 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 
 	go func() {
 		app.Listen(":9111")
-	}()
-
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			fmt.Println("NUMBER OF GOROUTINES ", runtime.NumGoroutine())
-		}
 	}()
 
 	<-ctx.Done()
