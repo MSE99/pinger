@@ -33,7 +33,7 @@ $ ./pinger -config
   // A list of the apps to monitor
   "apps": [
     {
-      "appName": "Delivery platform", // The application name
+      "appName": "Delivery platform server", // The application name
       "statusUrl": "http://fma.aramtech.ly/server/api/status", // Status url
       "checkInterval": "1m", // Check interval
       "httpReporters": [
