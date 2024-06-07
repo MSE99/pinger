@@ -74,6 +74,10 @@ func startChecker(ctx context.Context, def appDef) {
 func hit(ctx context.Context, def appDef) error {
 	resp, err := http.Get(def.StatusURL)
 
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
 	if err != nil {
 		log.Printf("Gotten `%v` error from checking on the status of %s (Reporting...)", err, def.AppName)
 
