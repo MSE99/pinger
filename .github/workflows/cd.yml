@@ -20,5 +20,4 @@ jobs:
             git pull
             go build ./...
             pkill pinger
-            echo $(./pinger &)
-            echo "other"
+            ./pinger &
