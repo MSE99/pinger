@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/fasthttp/websocket"
 )
 
 func TestStartHttpServerAndCheckers(t *testing.T) {
@@ -31,6 +33,25 @@ func TestStartHttpServerAndCheckers(t *testing.T) {
 
 		if resp.Header.Get("Content-Type") != "text/html; charset=utf-8" {
 			t.Errorf("Expected content type to be %s but got %s", "text/html; charset=utf-8", resp.Header.Get("Content-Type"))
+			t.FailNow()
+		}
+	})
+
+	t.Run("Server should support a websocket connecting and listening for events.", func(t *testing.T) {
+		t.Parallel()
+
+		ws, _, wsErr := websocket.DefaultDialer.Dial("ws://localhost:9111/ws", http.Header{})
+		if wsErr != nil {
+			t.Error(wsErr)
+			t.FailNow()
+		}
+		defer ws.Close()
+
+		var results []statusCheckResult
+		readErr := ws.ReadJSON(&results)
+
+		if readErr != nil {
+			t.Error(readErr)
 			t.FailNow()
 		}
 	})
