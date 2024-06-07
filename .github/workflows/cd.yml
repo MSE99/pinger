@@ -21,3 +21,4 @@ jobs:
             go build ./...
             pkill pinger
             echo $(./pinger &)
+            echo "DONE"
