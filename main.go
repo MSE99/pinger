@@ -15,8 +15,21 @@ import (
 	"github.com/gofiber/template/html/v2"
 )
 
+type flags struct {
+	getStatusOnly bool
+	genConfigFlag bool
+}
+
 func main() {
-	startHTTPServerAndCheckers(context.Background())
+	opts := flags{}
+
+	flag.BoolVar(&opts.getStatusOnly, "status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
+	flag.BoolVar(&opts.genConfigFlag, "config", false, "If this flag is passed to pinger, it will generate a config file.")
+	flag.Parse()
+
+	ctx, cancelFunc := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer cancelFunc()
+	startHTTPServerAndCheckers(ctx, opts)
 }
 
 var (
@@ -24,13 +37,8 @@ var (
 	sockets      map[chan statusCheckResult]bool = map[chan statusCheckResult]bool{}
 )
 
-func startHTTPServerAndCheckers(mainCtx context.Context) {
-	getStatusOnly := flag.Bool("status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
-	genConfigFlag := flag.Bool("config", false, "If this flag is passed to pinger, it will generate a config file.")
-
-	flag.Parse()
-
-	if *genConfigFlag {
+func startHTTPServerAndCheckers(ctx context.Context, opts flags) {
+	if opts.genConfigFlag {
 		fmt.Println("✨ Generating default config...")
 
 		err := storeDefaultConfigIn("config.json")
@@ -47,13 +55,10 @@ func startHTTPServerAndCheckers(mainCtx context.Context) {
 		log.Panic(err)
 	}
 
-	if *getStatusOnly {
+	if opts.getStatusOnly {
 		checkOnAll(conf.Apps, context.Background())
 		return
 	}
-
-	ctx, cancelFunc := signal.NotifyContext(mainCtx, os.Interrupt, os.Kill)
-	defer cancelFunc()
 
 	for _, def := range conf.Apps {
 		startChecker(ctx, def)
