@@ -132,11 +132,12 @@ func reportError(ctx context.Context, def appDef, meta map[string]string) error 
 			return err
 		}
 
-		_, respErr := http.DefaultClient.Do(req)
+		resp, respErr := http.DefaultClient.Do(req)
 		if respErr != nil {
 			log.Printf("Reporting error for %s (%v).", def.AppName, respErr)
 			return respErr
 		}
+		defer resp.Body.Close()
 
 		log.Printf("Successfully reported error for: %s", def.AppName)
 	}
