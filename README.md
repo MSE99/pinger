@@ -50,8 +50,7 @@ $ ./pinger -config
             "sms": "delivery platform server is down!"
           }
         }
-      ],
-      "websocketReporters": [{ "event": "down", "body": "the server is down" }]
+      ]
     }
   ]
 }
