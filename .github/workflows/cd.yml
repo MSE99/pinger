@@ -1,0 +1,23 @@
+name: CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Attempting to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: services.aramtech.ly
+          username: root
+          password: AramTech@2022Services
+          script: |
+            cd pinger
+            git reset --hard
+            git pull
+            go build ./...
+            pkill pinger
+            ./pinger &
