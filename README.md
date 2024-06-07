@@ -35,7 +35,7 @@ $ ./pinger -config
     {
       "appName": "Delivery platform", // The application name
       "statusUrl": "http://fma.aramtech.ly/server/api/status", // Status url
-      "checkInterval": "1m", // Check interval in ms
+      "checkInterval": "1m", // Check interval
       "httpReporters": [
         // Alert handlers
         {
@@ -57,4 +57,4 @@ $ ./pinger -config
 ```
 
 Basically for each defined app, pinger will check the status of the application if the application responds with a none 200 response code
-pinger will send http requests to the specified alert urls, the above config will monitor the service at the URL `https://fma.aramtech.ly/sms/api` and will send alerts if it the service goes down.
+pinger will send http requests to the specified alert urls, the above config will monitor the service at the URL `https://fma.aramtech.ly/server/api` and will send alerts if it the service goes down.
