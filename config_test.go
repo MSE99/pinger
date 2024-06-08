@@ -15,7 +15,7 @@ func TestGetDefaultConfig(t *testing.T) {
 	t.Parallel()
 
 	gotten := defaultConfig()
-	wanted := &config{Apps: []appDef{}}
+	wanted := &config{Apps: []appDef{}, Port: 9111}
 
 	if !reflect.DeepEqual(gotten, wanted) {
 		t.Error("Default config should be empty")

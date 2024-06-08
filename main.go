@@ -142,7 +142,12 @@ func startHTTPServerAndCheckers(ctx context.Context, opts flags) {
 	}))
 
 	go func() {
-		app.Listen(":9111")
+		port := conf.Port
+		if port == 0 {
+			port = 9111
+		}
+
+		app.Listen(fmt.Sprintf(":%d", port))
 	}()
 
 	<-ctx.Done()

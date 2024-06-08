@@ -9,6 +9,7 @@ import (
 )
 
 type config struct {
+	Port int
 	Apps []appDef `json:"apps"`
 }
 
@@ -26,7 +27,7 @@ type httpReportingDef struct {
 }
 
 func defaultConfig() *config {
-	return &config{Apps: []appDef{}}
+	return &config{Apps: []appDef{}, Port: 9111}
 }
 
 func loadOrCreateConfigAt(filePath string) (*config, error) {
