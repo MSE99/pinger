@@ -12,7 +12,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
 )
 
 type flags struct {
@@ -64,11 +63,9 @@ func startHTTPServerAndCheckers(ctx context.Context, opts flags) {
 		startChecker(ctx, def)
 	}
 
-	engine := html.New("./views", ".html")
+	app := fiber.New()
 
-	app := fiber.New(fiber.Config{
-		Views: engine,
-	})
+	app.Static("/", "./www")
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		results := checkOnAll(conf.Apps, c.Context())
