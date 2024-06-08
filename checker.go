@@ -110,6 +110,10 @@ func hit(ctx context.Context, def appDef) error {
 
 func reportError(ctx context.Context, def appDef, meta map[string]string) error {
 	for _, handlingDef := range def.HttpReporters {
+		method := handlingDef.Method
+		if method == "" {
+			method = http.MethodPost
+		}
 		alertURL := handlingDef.Url
 		body := handlingDef.Body
 
@@ -127,7 +131,7 @@ func reportError(ctx context.Context, def appDef, meta map[string]string) error 
 			stringifiedBody = strings.ReplaceAll(stringifiedBody, key, value)
 		}
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, alertURL, strings.NewReader(stringifiedBody))
+		req, err := http.NewRequestWithContext(ctx, method, alertURL, strings.NewReader(stringifiedBody))
 		if err != nil {
 			return err
 		}
