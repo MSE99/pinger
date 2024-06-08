@@ -17,6 +17,7 @@ import (
 type flags struct {
 	getStatusOnly bool
 	genConfigFlag bool
+	noHttp        bool
 }
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 
 	flag.BoolVar(&opts.getStatusOnly, "status", false, "If set to true, will fetch the status of the services, report errors and immediately exit.")
 	flag.BoolVar(&opts.genConfigFlag, "config", false, "If this flag is passed to pinger, it will generate a config file.")
+	flag.BoolVar(&opts.noHttp, "noHttp", false, "If this flag is passed pinger will not run an http server and serve the web ui.")
 	flag.Parse()
 
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
@@ -61,6 +63,12 @@ func startHTTPServerAndCheckers(ctx context.Context, opts flags) {
 
 	for _, def := range conf.Apps {
 		startChecker(ctx, def)
+	}
+
+	if opts.noHttp {
+		<-ctx.Done()
+		log.Println("shutting down pinger")
+		return
 	}
 
 	app := fiber.New()
