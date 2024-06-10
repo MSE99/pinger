@@ -5,7 +5,7 @@ jobs:
   test-go:
     # Install go modules and run tests
     docker:
-      - image: cimg/go:1.20
+      - image: cimg/go:1.21
     steps:
       - checkout
       - restore_cache:
@@ -62,10 +62,10 @@ jobs:
       # Replace this with steps to deploy to users
       - run:
           name: deploy
-          command: '#e.g. ./deploy.sh'
+          command: "#e.g. ./deploy.sh"
       - run:
           name: found github actions config
-          command: ':'
+          command: ":"
 workflows:
   build-and-test:
     jobs:

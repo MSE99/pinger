@@ -1,6 +1,6 @@
 module github.com/aramtech/pinger
 
-go 1.21.6
+go 1.21
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
